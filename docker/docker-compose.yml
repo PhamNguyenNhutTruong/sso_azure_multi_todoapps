@@ -1,0 +1,53 @@
+version: '3.9'
+services:
+  nginx:
+    image: nginx
+    build: .
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - todoapp1
+      - todoapp2
+
+  todoapp1:
+    container_name: todoapp1
+    image: todoapp1:0.0.1
+    build: 
+      context: ../todoapp1
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=jdbc:postgresql://java_db:5432/todo
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - TENANT_ID=652f7a57-da18-47b6-8396-7bfbb4e99305
+      - CLIENT_ID=f95c7006-e56c-4110-b8ca-3eadbf11f4ec
+      - CLIENT_SECRET=FIB8Q~GM4ATxedzsVq33jKLP4yak-mjxgX0Qga_E
+    depends_on:
+      - java_db
+
+  todoapp2:
+    container_name: todoapp2
+    image: todoapp2:0.0.1
+    build: 
+      context: ../todoapp2
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=jdbc:postgresql://java_db:5432/todo
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - TENANT_ID=652f7a57-da18-47b6-8396-7bfbb4e99305
+      - CLIENT_ID=f95c7006-e56c-4110-b8ca-3eadbf11f4ec
+      - CLIENT_SECRET=FIB8Q~GM4ATxedzsVq33jKLP4yak-mjxgX0Qga_E
+    depends_on:
+      - java_db
+
+  java_db:
+    container_name: java_db
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=todo
